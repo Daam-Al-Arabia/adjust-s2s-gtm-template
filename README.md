@@ -32,7 +32,7 @@ First, we need to add the Adjust "brain" to your GTM. You have two options:
 
 #### Option B: The "Manual Download" Method (GitHub)
 1.  **Download the File**: Go to our GitHub Releases Page and click on the `.tpl` file to download it to your computer.
-<a href="https://github.com/Daam-Al-Arabia/adjust-s2s-gtm-template/blob/main/Adjust%20S2S%20Events.tpl" download>
+<a href="https://github.com/Daam-Al-Arabia/adjust-s2s-gtm-template/blob/main/template.tpl" download>
   <img src="https://img.shields.io/badge/Download-Adjust%20GTM%20Template-blue?style=for-the-badge&logo=github" alt="Download Template">
 </a>
 2.  **Go to GTM**: Click **Templates** > **Tag Templates** > **New**.
