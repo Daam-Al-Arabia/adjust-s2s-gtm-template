@@ -1,12 +1,4 @@
-___TERMS_OF_SERVICE___
-
-By creating or modifying this file you agree to Google Tag Manager's Community
-Template Gallery Developer Terms of Service available at
-https://developers.google.com/tag-manager/gallery-tos (or such other URL as
-Google may provide), as modified from time to time.
-
-
-___INFO___
+﻿___INFO___
 
 {
   "type": "TAG",
@@ -14,7 +6,10 @@ ___INFO___
   "version": 1,
   "securityGroups": [],
   "displayName": "Adjust S2S Events API",
-  "categories": ["ANALYTICS", "ADVERTISING"],
+  "categories": [
+    "ANALYTICS",
+    "ADVERTISING"
+  ],
   "brand": {
     "id": "Daam-Al-Arabia",
     "displayName": "Daam Al Arabia",
@@ -75,13 +70,68 @@ ___TEMPLATE_PARAMETERS___
       }
     ],
     "newRowButtonText": "Add Event",
-    "help": "Required. Use this table for events that have a financial value (e.g., purchase).",
+    "help": "Required. Map your GTM Event Names (e.g., purchase) to Adjust Event Tokens. Note: For accurate attribution, ensure your incoming event data includes device identifiers like adid, idfa, or gps_adid.",
     "valueValidators": [
       {
         "type": "NON_EMPTY",
         "errorMessage": "Please provide at least one event"
       }
     ]
+  },
+  {
+    "type": "GROUP",
+    "name": "device_identifier",
+    "displayName": "Device Identifier",
+    "groupStyle": "ZIPPY_OPEN",
+    "subParams": [
+      {
+        "type": "TEXT",
+        "name": "platform",
+        "displayName": "Platform",
+        "simpleValueType": true,
+        "help": "Required. Enter the device platform (e.g., ios or android). This value is used to determine which device identifiers are required. You can map this to a GTM variable like {{Event Data - platform}}.",
+        "valueValidators": [
+          {
+            "type": "NON_EMPTY",
+            "errorMessage": "Platform is required for validation."
+          }
+        ],
+        "valueHint": "{{ Event Data - platform }}"
+      },
+      {
+        "type": "TEXT",
+        "name": "adid",
+        "displayName": "Adjust Device ID (adid)",
+        "simpleValueType": true,
+        "help": "The Adjust identifier associated with the device. Highly recommended for identifying users.",
+        "valueHint": "{{ Event Data - adid }}"
+      },
+      {
+        "type": "TEXT",
+        "name": "gps_adid",
+        "displayName": "Google Advertising ID (gps_adid)",
+        "simpleValueType": true,
+        "help": "Required for Android if adid is missing. Google Play Services Advertising ID.",
+        "valueHint": "{{ Event Data - gps_adid }}"
+      },
+      {
+        "type": "TEXT",
+        "name": "idfa",
+        "displayName": "Identifier for Advertisers (idfa)",
+        "simpleValueType": true,
+        "help": "Required for iOS if adid/idfv are missing. Available only if user has opted-in via ATT.",
+        "valueHint": "{{ Event Data - idfa }}"
+      },
+      {
+        "type": "TEXT",
+        "name": "idfv",
+        "displayName": "Identifier for Vendors (idfv)",
+        "simpleValueType": true,
+        "help": "Required for iOS if adid/idfa are missing. Stable identifier for apps from the same vendor.",
+        "valueHint": "{{ Event Data - idfv }}"
+      }
+    ],
+    "help": "Provide device identifiers for accurate attribution. The tag requires at least one valid identifier based on the platform (Android requires adid or gps_adid; iOS requires adid, idfa, or idfv)."
   },
   {
     "type": "GROUP",
@@ -138,7 +188,7 @@ ___TEMPLATE_PARAMETERS___
           }
         ],
         "newRowButtonText": "Add Revenue Event",
-        "help": "Required. Map your GTM Event Name to record S2S revenue events.",
+        "help": "Required. Map your GTM Event Name to record S2S revenue events. Be sure that the event name is included on Event Token Mapping above.",
         "valueValidators": [
           {
             "type": "NON_EMPTY",
@@ -172,7 +222,7 @@ ___TEMPLATE_PARAMETERS___
           }
         ],
         "simpleValueType": true,
-        "help": "Choose how to send custom data to your own servers via Adjust Global Callbacks.",
+        "help": "Choose how to send custom data to your own servers via Adjust Global Callbacks. (Option 1: Manual Mapping | Option 2: Event Data - Requires your developers to push a callback_params object to the Data Layer).",
         "defaultValue": "eventData"
       },
       {
@@ -220,7 +270,7 @@ ___TEMPLATE_PARAMETERS___
           }
         ],
         "simpleValueType": true,
-        "help": "Choose how to share specific data (like product_id) with integrated ad partners (e.g., Facebook, Google).",
+        "help": "Choose how to share specific data (like product_id) with integrated ad partners (e.g., Facebook, Google). (Option 1: Manual Mapping | Option 2: Event Data - Requires your developers to push a partner_params object to the Data Layer).",
         "defaultValue": "eventData"
       },
       {
@@ -253,6 +303,39 @@ ___TEMPLATE_PARAMETERS___
       }
     ],
     "help": "Optional configuration for specialized setups.Use callback and partner parameters to send custom event data to Adjust. This parameter mapping is for internal callbacks or third-party ad partners."
+  },
+  {
+    "type": "GROUP",
+    "name": "recommended_parameters",
+    "displayName": "Recommended Parameters",
+    "groupStyle": "ZIPPY_CLOSED",
+    "subParams": [
+      {
+        "type": "TEXT",
+        "name": "user_agent",
+        "displayName": "User Agent",
+        "simpleValueType": true,
+        "help": "The User-Agent of the device. Must be URL-encoded.",
+        "valueHint": "{{ Event Data - user_agent }}"
+      },
+      {
+        "type": "TEXT",
+        "name": "ip_address",
+        "displayName": "IP Address",
+        "simpleValueType": true,
+        "help": "The IPv4 address of the device. Used for location-related information.",
+        "valueHint": "{{ Event Data - ip_address }}"
+      },
+      {
+        "type": "TEXT",
+        "name": "created_at_unix",
+        "displayName": "Event Timestamp (created_at_unix)",
+        "simpleValueType": true,
+        "help": "The UNIX timestamp (in seconds) when the event occurred. For example: 1484085154.",
+        "valueHint": "{{ Event Data - created_at_unix }}"
+      }
+    ],
+    "help": "For accurate event attribution and location reporting, include these additional parameters."
   }
 ]
 
@@ -278,14 +361,14 @@ function getRequiredBody() {
   const params = [];
   
   // S2S Number 
-  const s2sVersion= data.s2s_version; 
+  const s2sVersion = data.s2s_version; 
   if (!s2sVersion) {
     logToConsole('Adjust S2S Error: S2S Number is missing.');
     return null; 
   }
   params.push('s2s=' + encodeUriComponent(makeString(s2sVersion)));
   
-  // App Tokens
+  // App Token
   const appToken = data.app_token; 
   if (!appToken) {
     logToConsole('Adjust S2S Error: App Token is missing.');
@@ -293,7 +376,7 @@ function getRequiredBody() {
   }
   params.push('app_token=' + encodeUriComponent(makeString(appToken)));
   
-  // Events Token
+  // Event Token
   const eventTable = data.event_token_mapping || [];
   const eventMatch = eventTable.filter(row => row.gtmEventName === gtmEventName)[0];
   if (!eventMatch || !eventMatch.adjustToken) {
@@ -302,18 +385,10 @@ function getRequiredBody() {
   }
   params.push('event_token=' + encodeUriComponent(makeString(eventMatch.adjustToken)));
 
-  // For iOS devices, you should use the adid advertising ID. This enables you to match device data when the IDFA isn’t available.
-  const adid = eventData.adid;
-  if (!adid) {
-    logToConsole('Adjust S2S Error: adid is missing from event data.');
-    return null;
-  }
-  params.push('adid=' + encodeUriComponent(makeString(adid)));
-
-  // Hardware IDs (IDFA/IDFV/GPS_ADID)
-  const deviceParams = getDeviceParams(eventData);
+  // Device Identifiers with Platform Validation
+  const deviceParams = getDeviceParams();
   if (!deviceParams) {
-    logToConsole('Adjust S2S Error: No hardware identifier (IDFA/IDFV/GPS_ADID) found.');
+    // getDeviceParams logs its own specific errors
     return null;
   }
   params.push(deviceParams);
@@ -323,37 +398,42 @@ function getRequiredBody() {
 
 
 //------   Recommended additional parameters for event submission  -----//
-function getRecommendedParams(ev) {
+function getRecommendedParams() {
   const params = [];
-  const missing = [];
 
-  //IP Address
-  const ip = ev.ip_override || ev.ip_address || ev.client_ip;
+  // IP Address
+  const ip = data.ip_address;
   if (ip) {
     params.push('ip_address=' + encodeUriComponent(makeString(ip)));
   } else {
-    missing.push('ip_address');
+    logToConsole('Adjust S2S Warning: ip_address is missing.');
   }
 
   // User Agent
-    const ua = getEncodedUserAgent(ev);
-    if (ua) {
-      params.push('user_agent=' + ua);
-   }
-    else {
-      missing.push('user_agent');
+  const ua = data.user_agent || getEncodedUserAgent(eventData);
+  if (ua) {
+    params.push('user_agent=' + encodeUriComponent(makeString(ua)));
+  } else {
+    logToConsole('Adjust S2S Warning: user_agent is missing.');
   }
 
   // Timestamp
-  const timestamp = Math.floor(getTimestampMillis() / 1000);
+  let timestamp = data.created_at_unix;
   if (timestamp) {
-    params.push('created_at_unix=' + makeString(timestamp));
+    timestamp = makeString(timestamp);
+    // Rough check for timestamp format (should be numeric)
+    if (!createRegex('^[0-9]+$').test(timestamp)) {
+       logToConsole('Adjust S2S Warning: created_at_unix format is invalid (expected numeric string).');
+    } else {
+      // Adjust expects seconds (10 digits). If it's 13 digits (ms), convert to seconds.
+      if (timestamp.length === 13) {
+        logToConsole('Adjust S2S Warning: created_at_unix received in milliseconds, converting to seconds.');
+        timestamp = makeString(Math.floor(timestamp / 1000));
+      }
+      params.push('created_at_unix=' + timestamp);
+    }
   } else {
-    missing.push('created_at_unix');
-  }
-
-  if (missing.length > 0) {
-    logToConsole('For accurate event attribution, include the following parameters with your events: ' + missing.join(', '));
+    logToConsole('Adjust S2S Warning: created_at_unix is missing.');
   }
 
   return params.join('&');
@@ -462,29 +542,46 @@ function getEncodedUserAgent(ev) {
 }
 
 /* ----------  HELPER: Hardware Device ID Logic ---------- */
-function getDeviceParams(ev) {
-  const platform = makeString(ev['x-ga-platform'] || '').toLowerCase();
-  const madid = ev.madid || ev['x-ga-resettable_device_id'];
-  const idfv = ev.idfv;
+function getDeviceParams() {
+  const platformInput = makeString(data.platform || '').toLowerCase();
+  const adid = data.adid ;
+  const gps_adid = data.gps_adid || eventData['x-ga-resettable_device_id'];
+  const idfa = data.idfa || eventData['x-ga-resettable_device_id'];
+  const idfv = data.idfv;
   
   let ids = [];
 
-  if (platform === 'ios') {
-    if (madid) ids.push('idfa=' + encodeUriComponent(makeString(madid)));
+  if (platformInput === 'ios') {
+    if (adid) ids.push('adid=' + encodeUriComponent(makeString(adid)));
+    if (idfa) ids.push('idfa=' + encodeUriComponent(makeString(idfa)));
     if (idfv) ids.push('idfv=' + encodeUriComponent(makeString(idfv)));
+    
+    if (ids.length === 0) {
+      logToConsole('Adjust S2S Error: At least one identifier (adid, idfa, or idfv) is required for iOS.');
+      return null;
+    }
   } 
-  else if (platform === 'android') {
-    if (madid) ids.push('gps_adid=' + encodeUriComponent(makeString(madid)));
+  else if (platformInput === 'android') {
+    if (adid) ids.push('adid=' + encodeUriComponent(makeString(adid)));
+    if (gps_adid) ids.push('gps_adid=' + encodeUriComponent(makeString(gps_adid)));
+    
+    if (ids.length === 0) {
+      logToConsole('Adjust S2S Error: At least one identifier (adid or gps_adid) is required for Android.');
+      return null;
+    }
+  } else {
+    logToConsole('Adjust S2S Error: Unsupported or missing platform: ' + platformInput);
+    return null;
   }
 
-  return ids.length > 0 ? ids.join('&') : null;
+  return ids.join('&');
 }
 
 /*******  ---  S2S API Request Execution  --- ******/
 const requiredBody = getRequiredBody();
 
 if (requiredBody) {
-  const recommendedBody = getRecommendedParams(eventData);
+  const recommendedBody = getRecommendedParams();
   const revenueBody = getRevenueParams(eventData);
   const callbackBody = getEncodedParams('callback');
   const partnerBody = getEncodedParams('partner');
@@ -548,86 +645,10 @@ ___SERVER_PERMISSIONS___
       },
       "param": [
         {
-          "key": "keyPatterns",
-          "value": {
-            "type": 2,
-            "listItem": [
-              {
-                "type": 1,
-                "string": "event_name"
-              },
-              {
-                "type": 1,
-                "string": "adid"
-              },
-              {
-                "type": 1,
-                "string": "value"
-              },
-              {
-                "type": 1,
-                "string": "currency"
-              },
-              {
-                "type": 1,
-                "string": "ip_address"
-              },
-              {
-                "type": 1,
-                "string": "client_ip"
-              },
-              {
-                "type": 1,
-                "string": "ip_override"
-              },
-              {
-                "type": 1,
-                "string": "x-ga-platform"
-              },
-              {
-                "type": 1,
-                "string": "x-ga-os_version"
-              },
-              {
-                "type": 1,
-                "string": "x-ga-device_model"
-              },
-              {
-                "type": 1,
-                "string": "app_version"
-              },
-              {
-                "type": 1,
-                "string": "madid"
-              },
-              {
-                "type": 1,
-                "string": "x-ga-resettable_device_id"
-              },
-              {
-                "type": 1,
-                "string": "idfv"
-              },
-              {
-                "type": 1,
-                "string": "currency"
-              },
-              {
-                "type": 1,
-                "string": "callback_params"
-              },
-              {
-                "type": 1,
-                "string": "partner_params"
-              }
-            ]
-          }
-        },
-        {
           "key": "eventDataAccess",
           "value": {
             "type": 1,
-            "string": "specific"
+            "string": "any"
           }
         }
       ]
@@ -679,53 +700,76 @@ scenarios:
 - name: Fails when required app_token is missing
   code: |+
     mock('logToConsole', () => {});
-
-    mock('getAllEventData', () => {
-      return {};
-    });
-
-    const mockData = {
-      s2s_version: '1'
-      // Intentionally leaving out app_token
-    };
-
+    const mockData = { s2s_version: '1' };
     runCode(mockData);
-
     assertApi('gtmOnFailure').wasCalled();
 
-
-
-- name: Succeeds with valid data
-  code: "mock('logToConsole', () => {});\n\nmock('getAllEventData', () => {\n  return\
-    \ {\n    event_name: 'test_event',\n    'x-ga-platform': 'Android',\n    madid:\
-    \ 'test_id',\n    ip_override: '192.168.1.1',\n    adid: '1234abc' \n  };\n});\n\
-    \nmock('getTimestampMillis', () => 1600000000000);\n\nmock('sendHttpRequest',\
-    \ (url, callback, options, body) => {\n  callback(200, {}, '{}'); \n});\n\nconst\
-    \ mockData = {\n  app_token: '123456789012',\n  s2s_version: '1',\n  event_token_mapping:\
-    \ [{ gtmEventName: 'test_event', adjustToken: 'abc1234' }]\n};\n\nrunCode(mockData);\n\
-    \nassertApi('gtmOnSuccess').wasCalled();\n"
 - name: Fails when event has no matching token in mapping
-  code: |-
+  code: |+
     mock('logToConsole', () => {});
-
-    mock('getAllEventData', () => {
-      return {
-        event_name: 'checkout',
-        'x-ga-platform': 'Android',
-        madid: 'test_device_id',
-        adid: 'test_adid_456'
-      };
-    });
-
+    mock('getAllEventData', () => { return { event_name: 'checkout' }; });
     const mockData = {
       app_token: '123456789012',
       s2s_version: '1',
+      platform: 'android',
+      adid: 'test_adid',
       event_token_mapping: [{ gtmEventName: 'purchase', adjustToken: 'xyz9876' }]
     };
-
     runCode(mockData);
-
     assertApi('gtmOnFailure').wasCalled();
+
+- name: Succeeds for Android with gps_adid
+  code: "mock('logToConsole', () => {});\nmock('getAllEventData', () => { return {\
+    \ event_name: 'test_event' }; });\nmock('sendHttpRequest', (url, callback, options,\
+    \ body) => {\n  callback(200, {}, '{}'); \n});\nconst mockData = {\n  app_token:\
+    \ '123456789012',\n  s2s_version: '1',\n  platform: 'android',\n  gps_adid: 'test_gps_id',\n\
+    \  event_token_mapping: [{ gtmEventName: 'test_event', adjustToken: 'abc1234'\
+    \ }]\n};\nrunCode(mockData);\nassertApi('gtmOnSuccess').wasCalled();\n\n"
+- name: Succeeds for iOS with idfa and idfv
+  code: "mock('logToConsole', () => {});\nmock('getAllEventData', () => { return {\
+    \ event_name: 'test_event' }; });\nmock('sendHttpRequest', (url, callback, options,\
+    \ body) => {\n   callback(200, {}, '{}'); \n});\nconst mockData = {\n  app_token:\
+    \ '123456789012',\n  s2s_version: '1',\n  platform: 'ios',\n  idfa: 'test_idfa',\n\
+    \  idfv: 'test_idfv',\n  event_token_mapping: [{ gtmEventName: 'test_event', adjustToken:\
+    \ 'abc1234' }]\n};\nrunCode(mockData);\nassertApi('gtmOnSuccess').wasCalled();\n\
+    \n"
+- name: Fails for Android when both adid and gps_adid are missing
+  code: |+
+    mock('logToConsole', () => {});
+    mock('getAllEventData', () => { return { event_name: 'test_event' }; });
+    const mockData = {
+      app_token: '123456789012',
+      s2s_version: '1',
+      platform: 'android',
+      // missing adid and gps_adid
+      event_token_mapping: [{ gtmEventName: 'test_event', adjustToken: 'abc1234' }]
+    };
+    runCode(mockData);
+    assertApi('gtmOnFailure').wasCalled();
+
+- name: Fails for iOS when all identifiers are missing
+  code: |+
+    mock('logToConsole', () => {});
+    mock('getAllEventData', () => { return { event_name: 'test_event' }; });
+    const mockData = {
+      app_token: '123456789012',
+      s2s_version: '1',
+      platform: 'ios',
+      // missing adid, idfa, idfv
+      event_token_mapping: [{ gtmEventName: 'test_event', adjustToken: 'abc1234' }]
+    };
+    runCode(mockData);
+    assertApi('gtmOnFailure').wasCalled();
+
+- name: Converts created_at_unix from ms to s
+  code: "let capturedBody = '';\nmock('logToConsole', () => {});\nmock('getAllEventData',\
+    \ () => { return { event_name: 'test_event' }; });\nmock('sendHttpRequest', (url,\
+    \ callback, options, body) => {\n  capturedBody = body;\n  callback(200, {}, '{}');\
+    \ \n});\nconst mockData = {\n  app_token: '123456789012',\n  s2s_version: '1',\n\
+    \  platform: 'android',\n  adid: 'test_adid',\n  created_at_unix: '1600000000000',\
+    \ // 13 digits (ms)\n  event_token_mapping: [{ gtmEventName: 'test_event', adjustToken:\
+    \ 'abc1234' }]\n};\nrunCode(mockData);\n// 1600000000000 ms -> 1600000000 s\n\
+    assertThat(capturedBody).contains('created_at_unix=1600000000');"
 
 
 ___NOTES___
