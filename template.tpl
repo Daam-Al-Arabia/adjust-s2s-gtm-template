@@ -351,6 +351,9 @@ const sendHttpRequest = require('sendHttpRequest');
 const encodeUriComponent = require('encodeUriComponent');
 const getTimestampMillis = require('getTimestampMillis');
 const createRegex = require('createRegex');
+const testRegex = require('testRegex');
+const makeNumber = require('makeNumber');
+
 
 const baseURL = 'https://s2s.adjust.com/event';
 const eventData = getAllEventData();
@@ -418,52 +421,57 @@ function getRecommendedParams() {
   }
 
   // Timestamp
-  let timestamp = data.created_at_unix;
-  if (timestamp) {
-    timestamp = makeString(timestamp);
-    // Rough check for timestamp format (should be numeric)
-    if (!createRegex('^[0-9]+$').test(timestamp)) {
-       logToConsole('Adjust S2S Warning: created_at_unix format is invalid (expected numeric string).');
-    } else {
-      // Adjust expects seconds (10 digits). If it's 13 digits (ms), convert to seconds.
-      if (timestamp.length === 13) {
-        logToConsole('Adjust S2S Warning: created_at_unix received in milliseconds, converting to seconds.');
-        timestamp = makeString(Math.floor(timestamp / 1000));
+const defaultTimeStamp = makeString(Math.floor(getTimestampMillis() / 1000));
+let timestampValue = data.created_at_unix;
+let finalTimestamp = defaultTimeStamp; 
+
+if (timestampValue) {
+  let tsString = makeString(timestampValue);
+  const digitOnlyRegex = createRegex('^[0-9]+$');
+  
+  if (digitOnlyRegex && testRegex(digitOnlyRegex, tsString)) {
+    let tsNumber = makeNumber(tsString);
+    if (tsNumber) {
+      if (tsString.length === 13) {
+        finalTimestamp = makeString(Math.floor(tsNumber / 1000));
+      } else {
+        finalTimestamp = tsString;
       }
-      params.push('created_at_unix=' + timestamp);
     }
   } else {
-    logToConsole('Adjust S2S Warning: created_at_unix is missing.');
+    logToConsole('Adjust S2S: Invalid timestamp detected (' + tsString + '). Using current time.');
   }
+}
 
+params.push('created_at=' + finalTimestamp);
+  
   return params.join('&');
+
 }
 
 //------  Record revenue events parameters -----//
 function getRevenueParams(ev) {
   const params = [];
   const revenueTable = data.revenue_events_table || [];
-  
   const revenueMatch = revenueTable.filter(row => row.eventName === gtmEventName)[0];
 
   if (!revenueMatch) {
     return '';
   }
-
+  
   // Revenue Value
-  const revValue = revenueMatch.revenueValue;
+   const revValue = revenueMatch.revenueValue;
   if (!revValue) {
-    logToConsole('Adjust S2S Error: Revenue mapping found for "' + gtmEventName + '", but the value is missing.');
-    return ''; 
+    logToConsole('Adjust S2S Error: "' + gtmEventName + '" is a revenue event, but no value was found. Skipping request.');
+    return null; // Return null to signal a hard stop
   }
   params.push('revenue=' + encodeUriComponent(revValue));
 
   // Currency 
-  const currency = data.currency || ev.currency;
-  
+ const currency = data.currency;
   if (!currency) {
-    logToConsole('Adjust S2S Error: Revenue event "' + gtmEventName + '" requires a currency code. None found in UI or event data.');
-    return ''; 
+    logToConsole('Adjust S2S Error: Revenue event "' + gtmEventName + '" requires a currency code.');
+    return null; // Abort if currency is missing for a revenue hit
   }
   params.push('currency=' + encodeUriComponent(makeString(currency)));
 
@@ -579,10 +587,10 @@ function getDeviceParams() {
 
 /*******  ---  S2S API Request Execution  --- ******/
 const requiredBody = getRequiredBody();
+const revenueBody = getRevenueParams(eventData);
 
-if (requiredBody) {
+if (requiredBody && revenueBody !== null) {
   const recommendedBody = getRecommendedParams();
-  const revenueBody = getRevenueParams(eventData);
   const callbackBody = getEncodedParams('callback');
   const partnerBody = getEncodedParams('partner');
 
@@ -611,7 +619,6 @@ if (requiredBody) {
 } else {
   data.gtmOnFailure();
 }
-
 
 ___SERVER_PERMISSIONS___
 
