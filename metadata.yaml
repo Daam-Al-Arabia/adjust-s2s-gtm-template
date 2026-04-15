@@ -1,5 +1,5 @@
 homepage: "https://daam.com.sa/"
 documentation: "https://github.com/rolandjethro/adjust-s2s-events-template"
 versions:
-  - sha: "0c0c39459b11e2d73cdf2b256fe02f86dca939ca"
+  - sha: "b122d654e40dc7ddd3955983cffe249d22c33640"
     changeNotes: "Initial release of Adjust S2S Events API GTM Server-Side Template."
