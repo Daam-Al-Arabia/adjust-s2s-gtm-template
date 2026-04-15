@@ -118,16 +118,6 @@ For accurate event attribution, every S2S request must include at least one vali
 
 ---
 
-
-### 📚 Need More Details?
-If you want to learn more about how Adjust processes these events or see a full list of available data fields, check out the official **Adjust S2S Events API Documentation**.
-
-* **[Visit the Adjust S2S API Docs →](https://dev.adjust.com/en/api/s2s-api/events/)**
-    * *Best for:* Understanding technical limits, checking currency codes, or troubleshooting specific server responses.
-
-
----
-
 ## 🤝 Support & Contribution
 
 Developed and maintained by **Daam Al Arabia**.
@@ -135,6 +125,15 @@ Developed and maintained by **Daam Al Arabia**.
 *   **Website**: **[https://daam.com.sa/](https://daam.com.sa/)**
 
 For bugs, feature requests, or custom implementation inquiries, please open an issue in this repository or contact us via our website.
+
+---
+
+### 📚 Need More Details?
+If you want to learn more about how Adjust processes these events or see a full list of available data fields, check out the official **Adjust S2S Events API Documentation**.
+
+* **[Visit the Adjust S2S API Docs →](https://dev.adjust.com/en/api/s2s-api/events/)**
+    * *Best for:* Understanding technical limits, checking currency codes, or troubleshooting specific server responses.
+
 
 ---
 
