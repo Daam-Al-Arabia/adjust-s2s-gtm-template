@@ -7,7 +7,7 @@ A custom Google Tag Manager (Server-Side) tag template that enables high-precisi
 
 ---
 
-## 🌟 Key Features
+## Key Features
 
 *   **100% Data Accuracy**: Direct server-to-server communication protects events from ad blockers, VPNs, and browser tracking restrictions.
 *   **Zero Mobile Code Changes**: Manage and map new events entirely within the GTM interface without requiring an app store release.
@@ -17,7 +17,7 @@ A custom Google Tag Manager (Server-Side) tag template that enables high-precisi
 
 ---
 
-## 📖 Beginner's Guide: Setting Up Adjust S2S in GTM Server-Side
+## Beginner's Guide: Setting Up Adjust S2S in GTM Server-Side
 
 This guide will walk you through sending your app data to Adjust using our Google Tag Manager (GTM) template.
 
@@ -88,7 +88,7 @@ Once you see that **Status: 200**, click **Publish** in your main GTM workspace 
 
 ---
 
-## 📡 Device Identifiers & Attribution
+## Device Identifiers & Attribution
 
 For accurate event attribution, every S2S request must include at least one valid device identifier. If you are using the **Event Data** (Option 2) source for parameters, ensure these keys are present in your incoming signals.
 
@@ -106,7 +106,7 @@ For accurate event attribution, every S2S request must include at least one vali
 
 ---
 
-## 🛰️ Technical Details
+## Technical Details
 
 *   **API Endpoint**: `https://s2s.adjust.com/event`
 *   **Request Method**: `POST`
@@ -118,7 +118,7 @@ For accurate event attribution, every S2S request must include at least one vali
 
 ---
 
-## 🤝 Support & Contribution
+## Support & Contribution
 
 Developed and maintained by **Daam Al Arabia**.
 
@@ -128,7 +128,7 @@ For bugs, feature requests, or custom implementation inquiries, please open an i
 
 ---
 
-### 📚 Need More Details?
+### Need More Details?
 If you want to learn more about how Adjust processes these events or see a full list of available data fields, check out the official **Adjust S2S Events API Documentation**.
 
 * **[Visit the Adjust S2S API Docs →](https://dev.adjust.com/en/api/s2s-api/events/)**
@@ -137,5 +137,5 @@ If you want to learn more about how Adjust processes these events or see a full 
 
 ---
 
-## ⚖️ License
+## License
 This project is licensed under the **Apache 2.0 License** - see the [LICENSE](LICENSE) file for details.
