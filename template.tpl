@@ -10,6 +10,7 @@
     "ANALYTICS",
     "ADVERTISING"
   ],
+"termsOfService": "https://github.com/Daam-Al-Arabia/adjust-s2s-gtm-template/blob/main/LICENSE",
   "brand": {
     "id": "Daam-Al-Arabia",
     "displayName": "Daam Al Arabia",
