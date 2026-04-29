@@ -443,7 +443,7 @@ if (timestampValue) {
   }
 }
 
-params.push('created_at=' + finalTimestamp);
+params.push('created_at_unix=' + finalTimestamp);
   
   return params.join('&');
 
